@@ -4,7 +4,7 @@
 # base system
 ################################################################################
 
-FROM ubuntu:20.04 as system
+FROM ubuntu:20.04 AS system
 
 
 
@@ -15,7 +15,7 @@ RUN apt-get update \
 
 
 # built-in packages
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update \
     && apt install -y --no-install-recommends software-properties-common curl apache2-utils ca-certificates \
     && apt update \
@@ -78,7 +78,7 @@ RUN apt-get update \
 ################################################################################
 # builder
 ################################################################################
-FROM ubuntu:20.04 as builder
+FROM ubuntu:20.04 AS builder
 
 
 RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list;
@@ -88,7 +88,14 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates gnupg patch
 
 # nodejs
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+#RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+#    && apt-get install -y nodejs
+
+# nodejs
+RUN gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 1655A0AB68576280 \
+    && gpg --export 1655A0AB68576280 | apt-key add - \
+    && echo "deb https://deb.nodesource.com/node_12.x focal main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
     && apt-get install -y nodejs
 
 # yarn
